@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -31,44 +32,102 @@ from PyQt5.QtWidgets import (
 )
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Project Structure Exporter - Generate project documentation"
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        help="Directory to process (optional in GUI mode)"
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "markdown", "json", "yaml"],
+        default="markdown",
+        help="Output format (default: markdown)"
+    )
+    parser.add_argument(
+        "--structure-only",
+        action="store_true",
+        help="Only export directory structure without file contents"
+    )
+    parser.add_argument(
+        "--llm-optimize",
+        action="store_true",
+        help="Optimize output for Large Language Models"
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        help="Output file path (default: auto-generated in project directory)"
+    )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Start in GUI mode regardless of other arguments"
+    )
+    return parser.parse_args()
+
+
 class FileItem(QStandardItem):
-    ICON_MAP = {
-        # Programming Languages
-        '.py': 'text-x-python',
-        '.js': 'text-javascript',
-        '.ts': 'text-typescript',
-        '.html': 'text-html',
-        '.css': 'text-css',
-        '.java': 'text-x-java',
-        '.cpp': 'text-x-c++src',
-        '.h': 'text-x-c++hdr',
-        '.cs': 'text-x-csharp',
-        '.go': 'text-x-go',
-        '.rs': 'text-x-rust',
-        # Documentation
-        '.txt': 'text-plain',
-        '.md': 'text-markdown',
-        '.pdf': 'application-pdf',
-        '.doc': 'x-office-document',
-        '.docx': 'x-office-document',
-        # Data formats
-        '.json': 'application-json',
-        '.xml': 'text-xml',
-        '.yaml': 'text-yaml',
-        '.yml': 'text-yaml',
-        '.csv': 'text-csv',
-        # Images
-        '.jpg': 'image-jpeg',
-        '.jpeg': 'image-jpeg',
-        '.png': 'image-png',
-        '.gif': 'image-gif',
-        '.svg': 'image-svg+xml',
-        # Config files
-        '.conf': 'text-x-config',
-        '.ini': 'text-x-config',
-        '.env': 'text-x-config',
-        '.cfg': 'text-x-config',
-    }
+    """File/directory item for the tree view with VSCode-style icons."""
+
+    # Icon file paths - will be initialized in setup_icons()
+    ICONS = {}
+    ICON_DIR = os.path.join(os.path.dirname(__file__), "icons")
+
+    @classmethod
+    def setup_icons(cls):
+        """Set up the icon mapping from the icons directory."""
+        # Ensure icons directory exists
+        os.makedirs(cls.ICON_DIR, exist_ok=True)
+
+        # Default fallback icons
+        cls.ICONS = {
+            "folder": QIcon(os.path.join(cls.ICON_DIR, "folder.svg")),
+            "file": QIcon(os.path.join(cls.ICON_DIR, "file.svg")),
+        }
+
+        # Language-specific icons
+        cls.LANGUAGE_ICONS = {
+            # Programming Languages
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".html": "html",
+            ".css": "css",
+            ".java": "java",
+            ".cpp": "cpp",
+            ".h": "h",
+            ".cs": "csharp",
+            ".go": "go",
+            ".rs": "rust",
+            # Documentation
+            ".md": "markdown",
+            ".txt": "text",
+            ".pdf": "pdf",
+            ".doc": "word",
+            ".docx": "word",
+            # Data formats
+            ".json": "json",
+            ".xml": "xml",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".csv": "csv",
+            # Images
+            ".jpg": "image",
+            ".jpeg": "image",
+            ".png": "image",
+            ".gif": "image",
+            ".svg": "svg",
+            # Config files
+            ".conf": "config",
+            ".ini": "config",
+            ".env": "config",
+            ".cfg": "config",
+        }
 
     def __init__(self, text: str, is_dir: bool = False):
         super().__init__(text)
@@ -77,10 +136,11 @@ class FileItem(QStandardItem):
 
     def get_icon(self) -> QIcon:
         if self.is_dir:
-            return QIcon.fromTheme("folder")
+            return self.ICONS.get("folder", QIcon())
+
         ext = os.path.splitext(self.text())[1].lower()
-        theme = self.ICON_MAP.get(ext, "text-x-generic")
-        return QIcon.fromTheme(theme)
+        icon_name = self.LANGUAGE_ICONS.get(ext, "file")
+        return self.ICONS.get(icon_name, self.ICONS["file"])
 
 
 class ProjectExportTool(QMainWindow):
@@ -130,7 +190,7 @@ class ProjectExportTool(QMainWindow):
 
         # Load and set font
         font_id = QFontDatabase.addApplicationFont(self.FONT_PATH)
-        if font_id != -1:
+        if (font_id != -1):
             font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
             font = QFont(font_family, 12)
             self.setFont(font)
@@ -664,15 +724,80 @@ class ProjectExportTool(QMainWindow):
             else:
                 json.dump(structure, f, indent=2)
 
+    @staticmethod
+    def process_directory(
+        directory: str,
+        output_file: Optional[str] = None,
+        export_format: str = "markdown",
+        structure_only: bool = False,
+        llm_optimize: bool = False
+    ) -> str:
+        """Process a directory from command line."""
+        tool = ProjectExportTool()
+
+        if not output_file:
+            project_name = os.path.basename(directory)
+            filename = f"{project_name}_structure"
+            if not structure_only:
+                filename += "_and_content"
+            extension = {
+                "text": ".txt",
+                "markdown": ".md",
+                "json": ".json",
+                "yaml": ".yaml"
+            }.get(export_format, ".txt")
+            output_file = os.path.join(directory, filename + extension)
+
+        # Set up tool state
+        tool.current_dir = directory
+        tool.structure_only_cb.setChecked(structure_only)
+        tool.llm_optimize_cb.setChecked(llm_optimize)
+        tool.format_combo.setCurrentText(export_format.capitalize())
+
+        # Generate output
+        tool.generate_file_structure(directory, output_file)
+        return output_file
+
+
+def main():
+    """Main entry point supporting both GUI and CLI modes."""
+    args = parse_args()
+
+    # Initialize icon system
+    FileItem.setup_icons()
+
+    if args.gui or not args.directory:
+        # Start GUI mode
+        app = QApplication(sys.argv)
+        app.setStyle("Fusion")
+
+        # Set up font
+        font_id = QFontDatabase.addApplicationFont(ProjectExportTool.FONT_PATH)
+        if font_id != -1:
+            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+            font = QFont(font_family, 12)
+            app.setFont(font)
+
+        window = ProjectExportTool()
+        if args.directory:
+            window.process_folder(args.directory)
+        window.show()
+        sys.exit(app.exec_())
+    else:
+        # CLI mode
+        try:
+            output_file = ProjectExportTool.process_directory(
+                directory=args.directory,
+                output_file=args.output,
+                export_format=args.format,
+                structure_only=args.structure_only,
+                llm_optimize=args.llm_optimize
+            )
+            print(f"Export completed successfully: {output_file}")
+        except Exception as e:
+            print(f"Error: {str(e)}", file=sys.stderr)
+            sys.exit(1)
+
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    app.setStyle("Fusion")
-    font_id = QFontDatabase.addApplicationFont(ProjectExportTool.FONT_PATH)
-    if font_id != -1:
-        font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-        font = QFont(font_family, 12)
-        app.setFont(font)
-    mainWin = ProjectExportTool()
-    mainWin.show()
-    sys.exit(app.exec_())
+    main()
