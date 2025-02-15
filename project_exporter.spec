@@ -6,7 +6,10 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('HarmonyOS_Sans_SC_Regular.ttf', '.'), ('icon-3种尺寸.ico', '.'), ('README.md', '.'), ('LICENSE', '.')],
+    datas=[
+        ('HarmonyOS_Sans_SC_Regular.ttf', '.'),
+        ('icon-3种尺寸.ico', '.'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -17,7 +20,6 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -27,7 +29,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='项目文件导出工具',
+    name='ProjectExporter',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -43,12 +45,12 @@ exe = EXE(
     icon='icon-3种尺寸.ico'
 )
 
-# 仅在 macOS 上添加 BUNDLE
+# Add BUNDLE only on macOS
 import sys
 if sys.platform == 'darwin':
     app = BUNDLE(
         exe,
-        name='项目文件导出工具.app',
-        icon='icon-3种尺寸.icns',
+        name='Project_File_Exporter.app',
+        icon='icon-3-sizes.icns',
         bundle_identifier=None,
     )
