@@ -1,35 +1,36 @@
-# 项目文件导出工具
+# Project File Export Tool
 ![image](https://github.com/user-attachments/assets/4cf70ba3-1237-47e7-9028-4e975c072e08)
 
 ![image](https://github.com/user-attachments/assets/33fa68ad-629e-418c-85ec-b6caecdb87ce)
 
 
-## 简介
+## Introduction
 
-这是一个使用PyQt5开发的项目文件导出工具。它允许用户通过拖拽或选择文件夹的方式将项目文件夹到工具窗口中，然后自动生成项目的文件结构和具体内容（可选）的文本文件。
+This is a project file export tool developed using PyQt5. It allows users to drag and drop or select project folders into the tool window, then automatically generates a text file containing the project's file structure and specific content (optional).
 
-该工具旨在方便开发者直接通过上下文向LLM传递项目的详细信息。
+The tool aims to help developers directly pass project details to LLMs through context.
 
-本项目的代码几乎完全由GPT-4o、Claude 3.5 Sonnet编写，我仅提供需求和建议。
+This project's code was almost entirely written by GPT-4 and Claude 3.5 Sonnet, with me only providing requirements and suggestions.
 
-## 功能特点
+## Features
 
-- 自动生成项目的文件结构树
-- 提取每个文件的代码内容并写入输出文件（可选）
-- 使用XML标签包裹文件内容，便于LLM更好地读取文件
-- 将导出的文本文件放置在导入的项目文件目录中
-- 实时显示导出状态和输出文件路径
+- Automatically generates project file structure tree
+- Extracts code content from each file and writes to output file (optional)
+- Uses XML tags to wrap file content for better LLM readability
+- Places exported text files in the imported project directory
+- Real-time display of export status and output file path
 
-## 使用方法
+## How to Use
 
-1. 前往 [Releases](https://github.com/CookSleep/Project_Exporter/releases) 页面
-2. 下载最新版本的 `Project_Exporter.zip`。
-3. 解压 `Project_Exporter.zip`。
-4. 双击运行 `项目文件导出工具.exe`。
-5. 将需要导入的项目文件夹拖入程序窗口/点击“选择文件夹”选择需要导出的文件夹。
-6. 在输出完成后，前往刚刚选择的项目目录（在输出框也有显示）查找输出文件。
-7. 复制粘贴全文到LLM的上下文窗口中，继续你和LLM的项目研究之旅。
+1. Go to [Releases](https://github.com/CookSleep/Project_Exporter/releases) page
+2. Download the latest version of `Project_Exporter.zip`
+3. Extract `Project_Exporter.zip`
+4. Double-click to run `Project File Export Tool.exe`
+5. Drag the project folder into the program window or click "Select Folder" to choose the folder to export
+6. After completion, check the output file in the project directory (also shown in the output box)
+7. Copy and paste the entire text into the LLM's context window to continue your project research journey with the LLM
 
-## 贡献
+## Contributing
 
-如果您对本项目有任何建议或意见，欢迎提交Issue或Pull Request。
+If you have any suggestions or comments about this project, feel free to submit an Issue or Pull Request.
+
