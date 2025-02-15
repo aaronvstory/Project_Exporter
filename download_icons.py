@@ -1,7 +1,8 @@
 import os
+
 import requests
 
-BASE_URL = "https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons"
+BASE_URL = "https://raw.githubusercontent.com/microsoft/vscode-codicons/main/src/icons"
 ICON_DIR = "icons"
 
 # Ensure icons directory exists
@@ -12,32 +13,33 @@ ICONS_TO_DOWNLOAD = {
     "folder.svg": "folder.svg",
     "file.svg": "file.svg",
     # Programming languages
-    "python.svg": "python.svg",
-    "javascript.svg": "javascript.svg",
-    "typescript.svg": "typescript.svg",
-    "html.svg": "html.svg",
-    "css.svg": "css.svg",
-    "java.svg": "java.svg",
-    "cpp.svg": "cpp.svg",
-    "csharp.svg": "csharp.svg",
-    "go.svg": "go.svg",
-    "rust.svg": "rust.svg",
+    "symbol-method.svg": "python.svg",  # Using method symbol for Python
+    "json.svg": "javascript.svg",  # JavaScript uses JSON icon
+    "symbol-class.svg": "typescript.svg",  # TypeScript uses class symbol
+    "browser.svg": "html.svg",  # HTML uses browser icon
+    "symbol-color.svg": "css.svg",  # CSS uses color symbol
+    "library.svg": "java.svg",  # Java uses library icon
+    "debug.svg": "cpp.svg",  # C++ uses debug icon
+    "vm.svg": "csharp.svg",  # C# uses VM icon
+    "go-to-file.svg": "go.svg",  # Go uses go-to-file
+    "tools.svg": "rust.svg",  # Rust uses tools
     # Documentation
     "markdown.svg": "markdown.svg",
-    "text.svg": "text.svg",
-    "pdf.svg": "pdf.svg",
-    "word.svg": "word.svg",
+    "text-size.svg": "text.svg",
+    "output.svg": "pdf.svg",
+    "file-binary.svg": "word.svg",
     # Data formats
-    "json.svg": "json.svg",
-    "xml.svg": "xml.svg",
-    "yaml.svg": "yaml.svg",
-    "csv.svg": "csv.svg",
+    "bracket.svg": "json.svg",
+    "code.svg": "xml.svg",
+    "list-tree.svg": "yaml.svg",
+    "list-flat.svg": "csv.svg",
     # Images
-    "image.svg": "image.svg",
-    "svg.svg": "svg.svg",
+    "preview.svg": "image.svg",
+    "type-hierarchy.svg": "svg.svg",
     # Config
-    "config.svg": "settings.svg",
+    "settings-gear.svg": "config.svg",
 }
+
 
 def download_icon(icon_name: str, save_as: str):
     """Download an icon from VSCode's repository."""
@@ -46,16 +48,18 @@ def download_icon(icon_name: str, save_as: str):
     if response.status_code == 200:
         with open(os.path.join(ICON_DIR, save_as), "wb") as f:
             f.write(response.content)
-        print(f"Downloaded {icon_name}")
+        print(f"Downloaded {icon_name} as {save_as}")
     else:
         print(f"Failed to download {icon_name}: {response.status_code}")
 
+
 def main():
     """Download all required icons."""
-    print("Downloading VSCode icons...")
+    print("Downloading VSCode Codicons...")
     for src, dst in ICONS_TO_DOWNLOAD.items():
         download_icon(src, dst)
     print("Icon download complete!")
+
 
 if __name__ == "__main__":
     main()
